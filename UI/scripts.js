@@ -1,4 +1,5 @@
-var articles = [
+var articleModel = (function(){
+    var articles = [
 {
     id: '1',
     title :"НМИД: Беларусь продолжит взаимодействие с ЕС для полной отмены санкций",
@@ -187,7 +188,7 @@ var articles = [
         createdAt: new Date("2017-03-01T12:00:00"),
         author: "Янушкевич Евгений",
         content:"По их словам, глава государства поставил свою подпись под документом «этим утром», сама церемония прошла в закрытом для прессы режиме.Согласно документу, власти повторно на 90 дней вводят запрет на въезд для граждан Судана, Сирии, Ирана, Ливии, Сомали и Йемена. Исключение составляют те, кому ранее была выдана виза. Ранее в этот список также входил Ирак, однако теперь он из списка исключен.",
-        tags:["политика"]
+        tags:["политика","криминал"]
     }
 ];
 var tags = ["мигранты","инцидент","ДТП","криминал","медицина","игры","международные","провакации","безопасность","протесты","политика"];
@@ -201,23 +202,61 @@ function comparator(article1,article2) {
         return 0;
     }
 }
+
+function init(){    
+    if(localStorage.getItem("articles") == null){
+        localStorage.setItem("articles", JSON.stringify(articles));
+    }
+    else{
+        articles = JSON.parse(localStorage.getItem("articles"));
+        articles.forEach(function (article){
+            article.createdAt = new Date(article.createdAt);
+        });
+    }
+}
+
 function getArticles(skip,top,filterConfig) {
     skip = skip || 0;
     top = top || 10;
+    return filterArtilces(articles, filterConfig).slice(skip, skip + top);
+}
+
+function getArticlesCount(filterConfig) {
+        return filterArtilces(articles, filterConfig).length;
+}
+
+    function filterArtilces(articles, filterConfig) {
+    filterConfig.fromDate = filterConfig.fromDate || new Date("01.01.2000");
+    filterConfig.toDate = filterConfig.toDate || new Date();
     var newArticles = [];
-    if (filterConfig!= undefined)
+    if (filterConfig && filterConfig.author){
         for (var i = 0; i < articles.length; i++) {
-            if (articles[i].author == filterConfig.author || articles[i].tags == filterConfig.tags) {
+            if (articles[i].author == filterConfig.author) {
                 newArticles.push(articles[i]);
             }
         }
+    }
     else {
         newArticles = articles;
     }
-    newArticles = newArticles.slice(skip, skip + top);
-    newArticles.sort(comparator);
+    if(filterConfig && filterConfig.tags){
+        newArticles = newArticles.filter(function(article){
+            return article.tags.some(function(tag){
+                return tag === filterConfig.tags;
+            })
+        })
+    }
+    else{
+        newArticles = newArticles;
+    }
+    newArticles = newArticles.filter(function (article){
+        return ((article.createdAt > filterConfig.fromDate) && (article.createdAt < filterConfig.toDate))
+    })
+    newArticles = newArticles.sort();
     return newArticles;
 }
+
+
 function getArticle(ID){
     for(var i = 0;i < articles.length;i++){
         if(articles[i].id == ID){
@@ -226,6 +265,7 @@ function getArticle(ID){
     }
     return null;
 }
+
 function validateArticle(article) {
     if(article.id != undefined && article.title.length > 0 && article.title.length <=100 &&
         article.summary.length > 0 && article.summary.length <= 200 &&
@@ -239,24 +279,29 @@ function validateArticle(article) {
         return false;
     }
 }
+
 function addArticle(article) {
     if(validateArticle(article)){
         articles.push(article);
+        localStorage.setItem("articles", JSON.stringify(articles));
         return true
     }
     else{
         return false
     }
 }
+
 function deleteArticle(ID) {
     for(var i = 0;i<articles.length;i++){
         if(articles[i].id == ID){
             articles.splice(i,1);
+            localStorage.setItem("articles", JSON.stringify(articles));
             return true;
         }
     }
     return false;
 }
+
 function editArticle(ID, article) {
     for(var i = 0;i < articles.length;i++){
         if(articles[i].id == ID){
@@ -265,20 +310,34 @@ function editArticle(ID, article) {
             article.id = articles[i].id;
             if(validateArticle(article)){
                 articles[i] = article;
+                localStorage.setItem("articles", JSON.stringify(articles));
                 return true;
             }
         }
     }
     return false;
 }
+
+function getArticlesNumber(){
+    return articles.length;
+}
+
+function hasTag(article, tag){
+    for(var i = 0;i < article.tags.length;i++){
+        return article.tags[i] === tag;
+    }
+    return false;
+}
+
 function validateTags(tagsArray) {
     for (var i = 0; i < tagsArray.length; i++) {
-        if(tags.indexOf(tagsArray[i]) < 0){
+        if(tags.indexOf(tagsArray[i].toLowerCase()) === -1){
             return false;
         }
     }
     return true;
 }
+
 function addTag(tag) {
     if(tags.indexOf(tag.toLowerCase()) < 0){
         tags.push(tag.toLowerCase());
@@ -287,6 +346,7 @@ function addTag(tag) {
         return false;
     }
 }
+
 function deleteTag(deletingTag) {
     for (var i = 0; i < tags.length; i++) {
         if(tags[i] == deletingTag.toLowerCase()){
@@ -295,11 +355,384 @@ function deleteTag(deletingTag) {
     }
 }
 
-console.log(articles);
-console.log(getArticles(5,5,{author:"Янушкевич Евгений"}));
-console.log(editArticle('1',{title:"newTittle",summary:"newSummary",content:"newContent",tags:["tag1"]}));
-console.log(deleteArticle("1"));
-console.log(addTag("tag1"));
-console.log(tags);
-console.log(addArticle({id:"21",title:"newTittle",summary:"newSummary",content:"newContent",author:"newAuthor",createdAt:new Date("2017-03-08T12:00:00"),tags:["tag1"]}));
-console.log(articles);
+function getTags(){
+    return tags;
+}
+
+return{
+    init: init,
+    getArticles: getArticles,
+    getArticlesCount: getArticlesCount,
+    filterArtilces: filterArtilces,
+    getArticle: getArticle,
+    validateArticle: validateArticle,
+    addArticle: addArticle,
+    deleteArticle: deleteArticle,
+    editArticle: editArticle,
+    getArticlesNumber: getArticlesNumber,
+    hasTag: hasTag,
+    validateTags: validateTags,
+    addTag: addTag,
+    deleteTag: deleteTag,
+    getTags: getTags
+};
+}())
+
+var articleRender = (function(){
+    var ARTICLE_TEMPLATE;
+    var ARTICLE_LIST_NODE;
+    var USER;
+    var articleButtons;
+    var userButtons;
+    function init(){
+        ARTICLE_TEMPLATE = document.querySelector('#template-article-list-item');
+        ARTICLE_LIST_NODE = document.querySelector('.article-list');
+        articleButtons = document.querySelector('.article-list');
+        articleButtons.addEventListener('click', buttons);
+        userButtons =  document.querySelector('.user');
+        userButtons.addEventListener('click', buttons);
+        document.getElementById("authorization").style.display = "none";
+        setUser();
+        var tags = document.querySelector('.tags-list');
+        for(var i = 0;i < articleModel.getTags().length;i++){
+            tags.innerHTML +='<option>'+articleModel.getTags()[i]+'</option>';
+    }
+}
+function buttons(event) {
+    if (event.target.tagName !== "BUTTON") {
+      return;
+    }
+    if(event.target.hasAttribute('deleteButton')){
+        var articleNodeToDelete = event.target.parentElement;
+        articleModel.deleteArticle(articleNodeToDelete.dataset.id);
+        articleButtons.removeChild(articleNodeToDelete);
+    }
+    if(event.target.hasAttribute('authorizationButton')){
+        deleteAllNews();
+        document.getElementById("authorization").style.display = '';
+        document.querySelector(".pagination-bar").style.display = 'none';
+
+    }
+    if(event.target.hasAttribute('showMoreButton')){
+        event.target.parentElement.querySelector('.content').hidden = false;
+    }
+    if(event.target.hasAttribute('exitbutton')){
+        setUser();
+        localStorage.removeItem("user");
+        document.querySelector(".pagination-bar").style.display = '';
+    }
+}
+    function deleteAllNews(){
+        ARTICLE_LIST_NODE.innerHTML = '';
+    }
+    function showArticles(articles){
+        for(var i = 0;i < articles.length;i++){
+            var temp =  ARTICLE_TEMPLATE;
+            temp.content.querySelector('.news-list-item').dataset.id = articles[i].id;
+            temp.content.querySelector('.title').textContent = articles[i].title;
+            temp.content.querySelector('.summary').textContent = articles[i].summary;
+            temp.content.querySelector('.content').textContent = articles[i].content;
+            temp.content.querySelector('.content').hidden = true;
+            temp.content.querySelector('.author').textContent = "Автор: " +  articles[i].author;
+            temp.content.querySelector('.createdAt').textContent = "Дата создания: " + formatDate(articles[i].createdAt);
+            temp.content.querySelector('.tags').textContent = "Теги: " + articles[i].tags;
+            if(USER === undefined){
+                temp.content.querySelector('.editButton').hidden = true;
+                temp.content.querySelector('.deleteButton').hidden = true;
+            }
+            else{
+                temp.content.querySelector('.editButton').hidden = false;
+                temp.content.querySelector('.deleteButton').hidden = false;
+            }
+            ARTICLE_LIST_NODE.appendChild(temp.content.querySelector('.news-list-item').cloneNode(true));
+        }
+    }
+    function formatDate(d) {
+        return d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear() + ' ' +
+            d.getHours() + ':' + d.getMinutes();
+}
+    function setUser(name){
+        USER = name;
+         if(USER === undefined){
+            document.querySelector('.user-name').textContent = 'Гость';
+            document.querySelector('.exitbutton').hidden = true; 
+            document.querySelector('.addArticleButton').hidden = true;
+            document.querySelector('.authorization-button').hidden = false;
+            for(var i = 0;i<ARTICLE_LIST_NODE.childNodes.length;i++){
+                 ARTICLE_LIST_NODE.childNodes[i].querySelector('.editButton').hidden = true;
+                 ARTICLE_LIST_NODE.childNodes[i].querySelector('.deleteButton').hidden = true;
+            }
+        }
+        else if(USER !== null){
+            document.querySelector('.user-name').textContent = USER;
+            document.querySelector('.authorization-button').hidden = true;
+            document.querySelector('.exitbutton').hidden = false;
+            document.querySelector('.addArticleButton').hidden = false;
+            for(var i = 0;i<ARTICLE_LIST_NODE.childNodes.length;i++){
+               ARTICLE_LIST_NODE.childNodes[i].querySelector('.editButton').hidden = false;
+               ARTICLE_LIST_NODE.childNodes[i].querySelector('.deleteButton').hidden = false;
+            }
+        }
+    }
+    function getUser(){
+        return USER;
+    }
+    return{
+        init: init,
+        deleteAllNews: deleteAllNews,
+        buttons: buttons,
+        showArticles: showArticles,
+        formatDate: formatDate,
+        setUser: setUser,
+        getUser: getUser
+    }
+}())
+
+var addArticleModel = (function (){
+    function addBtnClick(event){
+       document.querySelector(".pagination-bar").style.display = "none";
+       articleRender.deleteAllNews();
+       document.querySelector('.editrticleForm').style.display="";
+       document.querySelector('.author').textContent = articleRender.getUser();
+       document.querySelector('.createdAt').textContent = Date();
+   }
+        function confirmBtnClick(){
+           var article = {id: articleModel.getArticlesNumber()+1, title: "", summary: "", content: "",author: "",createdAt: "",tags: []};
+           var form = document.forms.addArticleForm;
+           article.title =  form.elements.title.value;
+           article.summary =  form.elements.summary.value;
+           article.content =  form.elements.content.value;
+           article.author = articleRender.getUser();
+           article.createdAt = new Date();
+           article.tags = form.elements.tags.value.split(",");
+           var tags = document.querySelector('.tags-list');
+           article.tags.forEach(function(tag){
+            if(articleModel.addTag(tag)){
+            tags.innerHTML +='<option>'+tag+'</option>';
+        }
+           })
+           articleModel.addArticle(article);
+           document.querySelector('.addArticleForm').style.display="none";
+           renderArticlesWithFilterConfig(filter.getFilter());
+        }
+    return{
+        addBtnClick: addBtnClick,
+        confirmBtnClick: confirmBtnClick
+    }
+}());
+
+var editArticleModel = (function (){
+    var articleToEdit;
+    var ID;
+    var author;
+    var createdAt;
+    function editBtnClick(event){
+       document.querySelector(".pagination-bar").style.display = "none";
+       articleToEdit = event.target.parentElement;
+       ID = articleToEdit.dataset.id;
+       var title = articleToEdit.querySelector('.title').textContent;
+       var summary = articleToEdit.querySelector('.summary').textContent;
+       var content = articleToEdit.querySelector('.content').textContent;
+       author = articleToEdit.querySelector('.author').textContent;
+       createdAt = articleToEdit.querySelector('.createdAt').textContent;
+       var tags = articleToEdit.querySelector('.tags').textContent.substring(6);
+       articleRender.deleteAllNews();
+       document.querySelector('.editArticleForm').style.display="";
+       var form = document.forms.editArticleForm;
+       form.elements.title.value = title;
+       form.elements.summary.value = summary;
+       form.elements.content.value = content;
+       document.querySelector('.editArticleForm').querySelector('.author').textContent = author;
+       document.querySelector('.editArticleForm').querySelector('.createdAt').textContent = createdAt;
+       form.elements.tags.value = tags;
+   }
+        function confirmBtnClick(){
+           var article = {id: ID, title: "", summary: "", content: "",author: "",createdAt: "",tags: []};
+           var form = document.forms.editArticleForm;
+           article.title =  form.elements.title.value;
+           article.summary =  form.elements.summary.value;
+           article.content =  form.elements.content.value;
+           article.author = author;
+           article.createdAt = createdAt;
+           article.tags = form.elements.tags.value.split(",");
+           var tags = document.querySelector('.tags-list');
+           article.tags.forEach(function(tag){
+
+            if(articleModel.addTag(tag)){
+            tags.innerHTML +='<option>'+tag+'</option>';
+        }
+           })
+           articleModel.editArticle(ID,article);
+           document.querySelector('.editArticleForm').style.display="none";
+           renderArticlesWithFilterConfig(filter.getFilter());
+        }
+    return{
+        editBtnClick: editBtnClick,
+        confirmBtnClick: confirmBtnClick
+    }
+}());
+
+var filter = (function () {
+    var form;
+    var submitButton;
+    var filterChangedCallback;
+
+    function init(_filterChangedCallback) {
+        form = document.forms.filter;
+        submitButton = form.elements.submit;
+        submitButton.addEventListener('click', handleSubmitClick);
+        filterChangedCallback = _filterChangedCallback;
+        if(localStorage.getItem("filter") == null){
+            return getFilter();
+    }
+    else{
+        var filterConfig = JSON.parse(localStorage.getItem("filter"));
+        return filterConfig;
+    }
+    }
+  
+  function getFilter() {
+        var filterConfig = {author: undefined, fromDate: undefined, toDate: undefined, tags: undefined}
+        var authorSelect = form.elements.author.value;
+        var fromDate =  Date.parse(form.elements.fromDate.value);
+        var toDate =  Date.parse(form.elements.toDate.value);
+        var options = [].slice.call(form.elements.tags);
+        var tagSelected = options.filter(function (option) {
+        return option.selected;
+        }).map(function (option) {
+        return option.value;
+        }).join(',');
+        filterConfig.author = authorSelect;
+        filterConfig.fromDate = fromDate;
+        filterConfig.toDate = toDate;
+        filterConfig.tags = tagSelected;
+        localStorage.setItem("filter", JSON.stringify(filterConfig));
+        return filterConfig;
+       }
+
+    function handleSubmitClick() {
+        document.querySelector(".addArticleForm").style.display = "none";
+        document.querySelector(".editArticleForm").style.display = "none";
+        document.getElementById("authorization").style.display = "none";
+        document.querySelector(".pagination-bar").style.display = "";
+        return filterChangedCallback(getFilter());
+    }
+
+    return {
+        init: init,
+        getFilter: getFilter
+    };
+
+}());
+
+var pagination = (function () {
+    var ITEMS_PER_PAGE = 3; // статей на 1-ой странице
+    var total; // всего статей
+    var currentPage; // текущая страница
+    var showMoreButton;
+    var showMoreCallback; // функция, которую вызывать, когда произошел клик по кнопке
+
+    /*
+        Total: Всего статей в ArticleModel. (Надо будет еще учесть, что total меняется при применении фильтров)
+        showMoreCb: функция, которую надо вызвать при клике на кнопку "Показать Еще"
+    */
+    function init(_total, _showMoreCallback) {
+        currentPage = 1;
+        total = _total;
+        showMoreCallback = _showMoreCallback;
+        showMoreButton = document.getElementById('pagination-show-more');
+        showMoreButton.addEventListener('click', handleShowMoreClick);
+
+        /* Не показывать кнопку если статей нет */
+        showOrHideMoreButton();
+
+        /* Вернуть skip, top для начальной отрисовки статей */
+        return getParams();
+    }
+
+    function handleShowMoreClick() {
+        var paginationParams = nextPage();
+        showMoreCallback(paginationParams.skip, paginationParams.top);
+    }
+
+    function getTotalPages() {
+        return Math.ceil(total / ITEMS_PER_PAGE);
+    }
+
+    function nextPage() {
+        currentPage = currentPage + 1;
+        /* возможно, статей больше нет, спрятать кнопку */
+        showOrHideMoreButton();
+
+        return getParams();
+    }
+
+    function getParams() {
+        return {
+            top: ITEMS_PER_PAGE,
+            skip: (currentPage - 1) * ITEMS_PER_PAGE
+        };
+    }
+
+    function showOrHideMoreButton() {
+        showMoreButton.hidden = getTotalPages() <= currentPage;
+    }
+
+    return {
+        init: init
+    }
+
+}());
+
+var authorization = (function (){
+    function confirmBtnClick(){
+    var form = document.getElementById("authorization");
+    var name = form.querySelector(".name").value;
+    form.querySelector(".name").value = '';
+    var password = form.querySelector(".password").value;
+    form.querySelector(".password").value = '';
+    document.getElementById("authorization").style.display = "none";
+    renderArticlesWithFilterConfig(filter.getFilter());
+    articleRender.setUser(name);
+    localStorage.setItem("user", JSON.stringify(name));
+}
+return{
+    confirmBtnClick: confirmBtnClick
+}
+}());
+
+document.addEventListener('DOMContentLoaded', start);
+
+function start(){
+    articleModel.init();
+    articleRender.init();
+    if(localStorage.getItem("user") == null){
+        articleRender.setUser();
+    }
+    else{
+        articleRender.setUser(JSON.parse(localStorage.getItem("user")));
+    }
+    var filterConfig = filter.init(renderArticlesWithFilterConfig);
+    renderArticlesWithFilterConfig(filterConfig);
+}
+function renderArticles(skip, top, filterConfig){
+   var articles = articleModel.getArticles(skip,top, filterConfig);
+   articleRender.showArticles(articles);
+}
+function renderArticlesWithFilterConfig(filterConfig) {
+        /* Перед отображением статей с новым фильтром. Удалим из дома старые статьи */
+        articleRender.deleteAllNews();
+        /*
+            Инициализируем пагинацию.
+            Для этого передаем сколько всего статей: total
+            и функцию, которую вызывать при клике на кнопку "Показать Еще":
+            анонимную функцию, которая, кроме переденных из pagination параметров skip и top, учтет текущий фильтр filterConfig.
+        */
+        var total = articleModel.getArticlesCount(filterConfig);
+        var paginationParams = pagination.init(total, function (skip, top) {
+            renderArticles(skip, top, filterConfig);
+        });
+
+        /* Нарисуем статьи из массива articles в DOM используя полученный фильтр и начальную пагинацию */
+        renderArticles(paginationParams.skip, paginationParams.top, filterConfig);
+}

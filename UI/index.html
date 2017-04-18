@@ -7,161 +7,84 @@
     <title>News.by</title>
 </head>
 <body>
-<div id = "NewsRibbon">
+<div class = "NewsRibbon">
     <b>   Новостная лента </b> </div>
-<header id = "user">
-    <h3><i class="fa fa-user" aria-hidden="true"></i> Имя пользователя</h3>
-    <a href=""><p><i class="fa fa-sign-out" aria-hidden="true"></i><button>Авторизация</button></p></a>
-    <a href=""><p><i class="fa fa-sign-out" aria-hidden="true"></i> <button>Выход</button></p></p></a>
-    <a href=""><p><i class="fa fa-sign-out" aria-hidden="true"></i> <button>Добавить новость</button></p></p></a>
+<header class = "user">
+    <h3 class="user-name">Имя пользователя</h3>
+    <p class="authorization-button"><button authorizationButton>Авторизация</button>
+    <p  class="exitbutton"><button exitbutton>Выход</button></p>
+    <p class="addArticleButton"><button onclick = 'addArticleModel.addBtnClick()' >Добавить новость</button></p>
+    </p>
 </header>
-<div id = "filter">
-    <p><b>Фильтр новостей: </b></p>
-    <p>Имя автора: <input type="text" name="name"> </p>
-    <p>Дата: <input type="datetime-local"></p>
-    <p>Теги: <input list="tags">
-        <datalist id="tags">
-            <option>Спорт</option>
-            <option>Криминал</option>
-            <option>Путешествия</option>
-            <option>Природа</option>
-            <option>Техника</option>
-            <option>Наука</option>
-        </datalist>
+
+<div class="filter-bar">
+<form name = "filter">
+    <p>Фильтр новостей:</p>
+    <p>Имя автора: <input type="text" name="author"></p>
+    <p>От: <input type="date" name="fromDate"></p>
+    <p>До: <input type="date" name="toDate"></p>
+    <p>Теги: <select multiple class="tags-list"  name="tags">
     </p>
-    <p style="text-align: center"><button>Найти</button>
+    <input name="submit" type="button" value="Применить" ></input>
+</form>
 </div>
-<div id="clearRight"></div>
-<div id = "news1">
-    <h1>НМИД: Беларусь продолжит взаимодействие с ЕС для полной отмены санкций
-    </h1>
-    <p>Белорусская сторона продолжит взаимодействие с ЕС в целях полной отмены санкций, заявили в МИД Беларуси,
-        комментируя решение Евросоюза продлить на год оружейное эмбарго в отношении нашей страны и санкции в отношении
-        четырех чиновников. В МИД отметили, что изначально исходят из того, что санкции несправедливы и контрпродуктивны.
-    </p>
-    <div aria-label="">Автор:</div>
-    <div aria-label="">Дата добавления:</div>
-    <button type="button">Показать новость </button>
-    <button type="button">Редактировать новсть</button>
-    <button type="button">Удалить новость</button>
+
+<div class="clearRight"></div>
+
+<div id="authorization" style="display: none">
+      <p>Логин: <input type="text" class="name"></p>
+      <p>Пароль: <input type="password" class="password"></p>
+      <input name="submit" type="button" onclick="authorization.confirmBtnClick()" value="ОК"></input>
 </div>
-<div id = "news2">
-    <h1>"Камісія згуляла ў глуханямых". Обсуждение стройки в Куропатах чиновниками не состоялось
-    </h1>
-    <p>Обсудили все, кроме возведения бизнес-центра в Куропатах.
-        Это краткий итог общественных слушаний по застройке Зеленого Луга, которые прошли сегодня в администрации Первомайского района.
-    </p>
-    <div aria-label="">Автор:</div>
-    <div aria-label="">Дата добавления:</div>
-    <button type="button" >Показать новость </button>
-    <button type="button">Редактировать новсть</button>
-    <button type="button">Удалить новость</button>
+
+<form class="addArticleForm" name="addArticleForm" style="display: none">
+        <h2>Заглавие: <input type="text" maxlength="100" name="title" style="width: 80%"></h2>
+        <h2>Краткий текст: <textarea type="text" maxlength="100" name="summary" style="width: 80%" style="height: 70%"></textarea> </h2>
+        <h2>Полный текст: <textarea type="text" maxlength="200" name="content" style="width: 80%"></textarea> </h2>
+        <p>Автор:<p name="author" class="author"></p></p>
+        <p>Дата: <p name="createdAt" class="createdAt" type="date"></p></p>
+        <p>Теги: <input name="tags"></p>
+        <input name="submit" type="button" onclick="addArticleModel.confirmBtnClick()" value="Добавить"></input>
+</form>
+
+<form class="editArticleForm" name="editArticleForm" style="display: none">
+        <h2>Заглавие: <input type="text" maxlength="100" name="title" style="width: 80%"></h2>
+        <h2>Краткий текст: <textarea type="text" maxlength="100" name="summary" style="width: 80%" style="height: 70%"></textarea> </h2>
+        <h2>Полный текст: <textarea type="text" maxlength="200" name="content" style="width: 80%"></textarea> </h2>
+        <p name="author" class="author"></p>
+        <p name="createdAt" class="createdAt" type="date"></p>
+        <input name="tags"></input>
+        <input name="submit" type="button" onclick="editArticleModel.confirmBtnClick()" value="Редактировать"></input>
+</form>
+
+<div class="article-list"></div>
+
+<div class="pagination-bar" style="text-align: center;">
+<button id="pagination-show-more">Показать ещё</button>
 </div>
-<div id = "news3">
-    <h1>Шуневич рассказал, в каких городах появятся центры временного содержания незаконных мигрантов</h1>
-    <p>В Беларуси центры временного содержания незаконных мигрантов будут созданы в Витебске, Гомеле и Лиде.
-        Об этом в интервью БЕЛТА рассказал министр внутренних дел Игорь Шуневич. По его словам, появятся центры не раньше 2018 года.
-    </p>
-    <div aria-label="">Автор:</div>
-    <div aria-label="">Дата добавления:</div>
-    <button type="button" >Показать новость </button>
-    <button type="button">Редактировать новсть</button>
-    <button type="button">Удалить новость</button>
-</div>
-<div id = "news4">
-    <h1>Прокурор попросил для Казакевича 15 лет. Обвиняемый: "Еще вернусь, чтобы закончить начатое"
-    </h1>
-    <p>Во время суда 18-летний Влад Казакевич полностью признал свою вину, но не раскаялся.
-        Он пожалел лишь о том, что жертв было мало.
-        Наказание молодой человек будет отбывать в колонии не усиленного,
-        а общего режима, так как преступление совершил в несовершеннолетнем возрасте.
-    </p>
-    <div aria-label="">Автор:</div>
-    <div aria-label="">Дата добавления:</div>
-    <button type="button" >Показать новость </button>
-    <button type="button">Редактировать новсть</button>
-    <button type="button">Удалить новость</button>
-</div>
-<div id = "news5">
-    <h1>Людям предлагают сдавать кровь в ожоговый центр, где лечат пострадавших со скидельской фабрики</h1>
-    <p>Состояние женщин, пострадавших во время взрыва на сахарном комбинате в Скиделе, тяжелое,
-        сохраняется угроза жизни, рассказал Дмитрий Мазолевский, заведующий ожоговым отделением больницы скорой медицинской помощи.
-    </p>
-    <div aria-label="">Автор:</div>
-    <div aria-label="">Дата добавления:</div>
-    <button type="button" >Показать новость </button>
-    <button type="button">Редактировать новсть</button>
-    <button type="button">Удалить новость</button>
-</div>
-<div id = "news6">
-    <h1>Сергея Муравьева приговорили к ограничению свободы и освободили из-под стражи в зале суда</h1>
-    <p>Сергея Муравьева, брата недавно осужденного на 11 лет бизнесмена Александра Муравьева,
-        приговорили к ограничению свободы на срок 2 года и 6 месяцев без направления в исправительное учреждение.
-        Его освободили из-под стражи в зале суда. Об этом TUT.BY сообщила помощник председателя
-        Минского городского суда Анастасия Шильвян.
-    </p>
-    <div aria-label="">Автор:</div>
-    <div aria-label="">Дата добавления:</div>
-    <button type="button" >Показать новость </button>
-    <button type="button">Редактировать новсть</button>
-    <button type="button">Удалить новость</button>
-</div>
-<div id = "news7">
-    <h1>МВД рассмотрит предложения по вопросам безопасности в торговых центрах</h1>
-    <p>Министерство внутренних дел рассмотрит поступившие предложения по вопросам безопасности в торговых центрах,
-        рассказал в интервью БЕЛТА министр внутренних дел Игорь Шуневич.
-        Какие именно предложения рассмотрят правоохранители он не уточнил.
-    </p>
-    <div aria-label="">Автор:</div>
-    <div aria-label="">Дата добавления:</div>
-    <button type="button" >Показать новость </button>
-    <button type="button">Редактировать новсть</button>
-    <button type="button">Удалить новость</button>
-</div>
-<div id = "news8">
-    <h1>Актер Николай Караченцов госпитализирован после ДТП в Подмосковье</h1>
-    <p>Актер Николай Караченцов попал в ДТП в Щелковском районе Подмосковья,
-        после чего был госпитализирован, сообщили ТАСС в правоохранительных органах области.
-    </p>
-    <div aria-label="">Автор:</div>
-    <div aria-label="">Дата добавления:</div>
-    <button type="button" >Показать новость </button>
-    <button type="button">Редактировать новсть</button>
-    <button type="button">Удалить новость</button>
-</div>
-<div id = "news9">
-    <h1>Часть "пропавших" в Беларуси студентов из Бангладеш оказалась во Франции, других задержали в Латвии</h1>
-    <p>Часть студентов, которые приехали в Беларусь из Бангладеш учиться и «пропали», оказались во Франции,
-        некоторых задержали пограничники Латвии,
-        рассказал в интервью БЕЛТА министр внутренних дел Беларуси Игорь Шуневич.
-        По словам министра, целью их попадания в Беларусь была последующая миграция в Евросоюз.
-    </p>
-    <div aria-label="">Автор:</div>
-    <div aria-label="">Дата добавления:</div>
-    <button type="button" >Показать новость </button>
-    <button type="button">Редактировать новсть</button>
-    <button type="button">Удалить новость</button>
-</div>
-<div id = "news10">
-    <h1>"Провокация для нагнетания напряженности между народами". Минск — о марше "проклятых солдат" в Польше</h1>
-    <p>Марш памяти «проклятых солдат», состоявшийся накануне в польской Гайновке,
-        — циничная провокация для нагнетания напряженности между белорусами и поляками.
-        Об этом говорится в комментарии председателя Постоянной комиссии Палаты представителей по правам человека,
-        национальным отношениям и средствам массовой информации, руководителя рабочей группы Национального собрания Беларуси
-        по сотрудничеству с парламентом Польши Андрея Наумовича.
-    </p>
-    <div aria-label="">Автор:</div>
-    <div aria-label="">Дата добавления:</div>
-    <button type="button" >Показать новость </button>
-    <button type="button">Редактировать новсть</button>
-    <button type="button">Удалить новость</button>
-</div>
-<div id="clearLeft"></div>
-<div id="footer">
+<div class="clearLeft"></div>
+
+<form class="footer">
     <p>News.net</p>
     <p>2 курс, 7 группа
     <p>andy.yanushkevich@gmail.com</p>
     <p>Автор:Янушкевич Андрей|Дата последнего изменения</p>
+</form>
+
+<template id="template-article-list-item">
+<div class="news-list-item" data-id="id">
+    <h1 class="title"></h1>
+    <p class="summary"></p>
+    <p class="content"></p>
+    <p class="author"></p>
+    <p class="createdAt"></p>
+    <p class="tags"></p>
+    <button showMoreButton>Показать новость </button>
+    <button class="editButton"  onclick="editArticleModel.editBtnClick(event)">Редактировать новость</button>
+    <button class="deleteButton" deleteButton>Удалить новость</button>
 </div>
+</template>
+
+<script src="scripts.js"></script>
 </body>
 </html>
