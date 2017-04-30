@@ -1,0 +1,22 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "main": "index.html",
+  "dependencies": {
+    "express": "^4.15.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrewyanushkevich/Andrew_Yanushkevich.git"
+  },
+  "author": "Yanushkevich",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andrewyanushkevich/Andrew_Yanushkevich/issues"
+  },
+  "homepage": "https://github.com/andrewyanushkevich/Andrew_Yanushkevich#readme",
+  "description": ""
+}

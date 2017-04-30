@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="scripts.js"></script>
+    <meta charset="UTF-8">
+    <title>News.by</title>
+</head>
+<body>
+<div class = "NewsRibbon">
+    <b>   Новостная лента </b> </div>
+<header class = "user">
+    <h3 class="user-name">Имя пользователя</h3>
+    <p class="authorization-button"><button authorizationButton>Авторизация</button>
+    <p  class="exitbutton"><button exitbutton>Выход</button></p>
+    <p class="addArticleButton"><button onclick = 'addArticleModel.addBtnClick()' >Добавить новость</button></p>
+    </p>
+</header>
+
+<div class="filter-bar">
+<form name = "filter">
+    <p>Фильтр новостей:</p>
+    <p>Имя автора: <input type="text" name="author"></p>
+    <p>От: <input type="date" name="fromDate"></p>
+    <p>До: <input type="date" name="toDate"></p>
+    <p>Теги: <select multiple class="tags-list"  name="tags">
+    </p>
+    <input name="submit" type="button" value="Применить" ></input>
+</form>
+</div>
+
+<div class="clearRight"></div>
+
+<div id="authorization" style="display: none">
+      <p>Логин: <input type="text" class="name"></p>
+      <p>Пароль: <input type="password" class="password"></p>
+      <input name="submit" type="button" onclick="authorization.confirmBtnClick()" value="ОК"></input>
+</div>
+
+<form class="addArticleForm" name="addArticleForm" style="display: none">
+        <h2>Заглавие: <input type="text" maxlength="100" name="title" style="width: 80%"></h2>
+        <h2>Краткий текст: <textarea type="text" maxlength="100" name="summary" style="width: 80%" style="height: 70%"></textarea> </h2>
+        <h2>Полный текст: <textarea type="text" maxlength="200" name="content" style="width: 80%"></textarea> </h2>
+        <p>Автор:<p name="author" class="author"></p></p>
+        <p>Дата: <p name="createdAt" class="createdAt" type="date"></p></p>
+        <p>Теги: <input name="tags"></p>
+        <input name="submit" type="button" onclick="addArticleModel.confirmBtnClick()" value="Добавить"></input>
+</form>
+
+<form class="editArticleForm" name="editArticleForm" style="display: none">
+        <h2>Заглавие: <input type="text" maxlength="100" name="title" style="width: 80%"></h2>
+        <h2>Краткий текст: <textarea type="text" maxlength="100" name="summary" style="width: 80%" style="height: 70%"></textarea> </h2>
+        <h2>Полный текст: <textarea type="text" maxlength="200" name="content" style="width: 80%"></textarea> </h2>
+        <p name="author" class="author"></p>
+        <p name="createdAt" class="createdAt" type="date"></p>
+        <input name="tags"></input>
+        <input name="submit" type="button" onclick="editArticleModel.confirmBtnClick()" value="Редактировать"></input>
+</form>
+
+<div class="article-list"></div>
+
+<div class="pagination-bar" style="text-align: center;">
+<button id="pagination-show-more">Показать ещё</button>
+</div>
+<div class="clearLeft"></div>
+
+<form class="footer">
+    <p>News.net</p>
+    <p>2 курс, 7 группа
+    <p>andy.yanushkevich@gmail.com</p>
+    <p>Автор:Янушкевич Андрей|Дата последнего изменения</p>
+</form>
+
+<template id="template-article-list-item">
+<div class="news-list-item" data-id="id">
+    <h1 class="title"></h1>
+    <p class="summary"></p>
+    <p class="content"></p>
+    <p class="author"></p>
+    <p class="createdAt"></p>
+    <p class="tags"></p>
+    <button showMoreButton>Показать новость </button>
+    <button class="editButton"  onclick="editArticleModel.editBtnClick(event)">Редактировать новость</button>
+    <button class="deleteButton" deleteButton>Удалить новость</button>
+</div>
+</template>
+
+<script src="scripts.js"></script>
+</body>
+</html>
